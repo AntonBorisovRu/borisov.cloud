@@ -1,0 +1,51 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: nginx-app
+spec:
+  selector:
+    matchLabels:
+      name: nginx-app
+  template:
+    metadata:
+      labels:
+        name: nginx-app
+    spec:
+      containers:
+        - name: nginx-container
+          image: nginx
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 80
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: nginx-service
+spec:
+  ports:
+    - name: http
+      port: 80
+      protocol: TCP
+      targetPort: 80
+  selector:
+    name: nginx-app
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: nginx-ingress
+spec:
+  ingressClassName: nginx
+  rules:
+  - host: test.borisov.cloud
+    http:
+      paths:
+        - path: /
+          pathType: Prefix
+          backend:
+            service:
+              name: nginx-service
+              port:
+                number: 80
